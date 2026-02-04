@@ -130,6 +130,7 @@ Qemu 模拟器安装
 .. attention::
 
    如果使用 Qemu10，需要：
+
    * 将 `opensbi releases <https://github.com/riscv-software-src/opensbi/releases>`_ 里面的 ``opensbi-1.8.1-rv-bin/share/opensbi/lp64/generic/firmware/fw_jump.bin`` 改名为 ``bootloader/rustsbi-qemu.bin`` 并替换同名文件即可
 
    * opensbi 1.8.1 + rustc 1.95.0-nightly (905b92696 2026-01-31) 测试可以正常运行并输出结果
