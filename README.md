@@ -1,5 +1,13 @@
 # rCore-Tutorial-Guide-2025S
 
+### 修改
+本库fork自[rCore-Tutorial-Guide-2025S](https://github.com/LearningOS/rCore-Tutorial-Guide-2025S)，并做了部分修改以适应个人学习需求。
+
+相对应的代码库为[rCore-Tutorial-Code-2025S](https://github.com/travellerse/rCore-Tutorial-Code-2025S)。
+
+具体修改内容如下：
+- 第零章：实验环境配置 增加了对 QEMU10 和 rustc 1.95.0-nightly 的支持
+
 ### Code
 - [Soure Code of labs for 2025S](https://github.com/LearningOS/rCore-Tutorial-Code-2025S)
 ### Documents
