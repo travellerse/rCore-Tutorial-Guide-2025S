@@ -127,99 +127,50 @@ Qemu 模拟器安装
 
 我们需要使用 Qemu 7.0.0 版本进行实验，为此，从源码手动编译安装 Qemu 模拟器：
 
-.. attention::
+.. warning::
 
-   如果使用 Qemu10，需要：
+   高版本 Qemu (8.0 - 10.0+) 的兼容性问题
 
-   * 将 `opensbi releases <https://github.com/riscv-software-src/opensbi/releases>`_ 里面的 ``opensbi-1.8.1-rv-bin/share/opensbi/lp64/generic/firmware/fw_jump.bin`` 改名为 ``bootloader/rustsbi-qemu.bin`` 并替换同名文件即可
+   本教程默认使用的底层固件 (bootloader) 是旧版的 rustsbi-qemu，该仓库已归档。如果你使用 Qemu 8.0 或更高版本（直接通过 apt install qemu-system-riscv64 安装的通常是高版本），可能会遇到启动卡死或崩溃的问题。
 
-   * 注意：下面Qemu8的替换链接的库和Qemu10的替换链接的库是不一样的，请不要混淆！因为下面那个库归档了，没有更新，于是找了最新的opensbi。
+   针对高版本 Qemu，我们提供两种解决方案（推荐方案一）：
 
-   * 是否存在隐患未知，还在进一步探索中。
+   方案一：手动编译最新的 RustSBI Prototyper（推荐）
 
-   * opensbi 1.8.1 + rustc 1.95.0-nightly (905b92696 2026-01-31) 测试可以正常运行并输出结果如下
-   
-   .. code-block:: 
+   使用 RustSBI 官方最新的 Prototyper 实现。
 
-      OpenSBI v1.8.1
-       ____                    _____ ____ _____
-      / __ \                  / ____|  _ \_   _|
-      | |  | |_ __   ___ _ __ | (___ | |_) || |
-      | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
-      | |__| | |_) |  __/ | | |____) | |_) || |_
-      \____/| .__/ \___|_| |_|_____/|____/_____|
-            | |
-            |_|
+   获取 RustSBI 主线源码：
 
-      Platform Name               : riscv-virtio,qemu
-      Platform Features           : medeleg
-      Platform HART Count         : 1
-      Platform HART Protection    : pmp
-      Platform IPI Device         : aclint-mswi
-      Platform Timer Device       : aclint-mtimer @ 10000000Hz
-      Platform Console Device     : uart8250
-      Platform HSM Device         : ---
-      Platform PMU Device         : ---
-      Platform Reboot Device      : syscon-reboot
-      Platform Shutdown Device    : syscon-poweroff
-      Platform Suspend Device     : ---
-      Platform CPPC Device        : ---
-      Firmware Base               : 0x80000000
-      Firmware Size               : 321 KB
-      Firmware RW Offset          : 0x40000
-      Firmware RW Size            : 65 KB
-      Firmware Heap Offset        : 0x47000
-      Firmware Heap Size          : 37 KB (total), 0 KB (reserved), 12 KB (used), 23 KB (free)
-      Firmware Scratch Size       : 4096 B (total), 1464 B (used), 2632 B (free)
-      Runtime SBI Version         : 3.0
-      Standard SBI Extensions     : time,rfnc,ipi,base,hsm,srst,pmu,dbcn,fwft,legacy,dbtr,sse
-      Experimental SBI Extensions : none
+   .. code-block:: bash
 
-      Domain0 Name                : root
-      Domain0 Boot HART           : 0
-      Domain0 HARTs               : 0*
-      Domain0 Region00            : 0x0000000080040000-0x000000008005ffff M: (F,R,W) S/U: ()
-      Domain0 Region01            : 0x0000000080000000-0x000000008003ffff M: (F,R,X) S/U: ()
-      Domain0 Region02            : 0x0000000000100000-0x0000000000100fff M: (I,R,W) S/U: (R,W)
-      Domain0 Region03            : 0x0000000010000000-0x0000000010000fff M: (I,R,W) S/U: (R,W)
-      Domain0 Region04            : 0x0000000002000000-0x000000000200ffff M: (I,R,W) S/U: ()
-      Domain0 Region05            : 0x000000000c400000-0x000000000c5fffff M: (I,R,W) S/U: (R,W)
-      Domain0 Region06            : 0x000000000c000000-0x000000000c3fffff M: (I,R,W) S/U: (R,W)
-      Domain0 Region07            : 0x0000000000000000-0xffffffffffffffff M: () S/U: (R,W,X)
-      Domain0 Next Address        : 0x0000000080200000
-      Domain0 Next Arg1           : 0x0000000082200000
-      Domain0 Next Mode           : S-mode
-      Domain0 SysReset            : yes
-      Domain0 SysSuspend          : yes
+      git clone https://github.com/rustsbi/rustsbi.git
+      cd rustsbi
 
-      Boot HART ID                : 0
-      Boot HART Domain            : root
-      Boot HART Priv Version      : v1.12
-      Boot HART Base ISA          : rv64imafdch
-      Boot HART ISA Extensions    : sstc,zicntr,zihpm,zicboz,zicbom,sdtrig,svadu
-      Boot HART PMP Count         : 16
-      Boot HART PMP Granularity   : 2 bits
-      Boot HART PMP Address Bits  : 54
-      Boot HART MHPM Info         : 16 (0x0007fff8)
-      Boot HART Debug Triggers    : 2 triggers
-      Boot HART MIDELEG           : 0x0000000000001666
-      Boot HART MEDELEG           : 0x0000000000f4b509
-      [kernel] Hello, world!
-      [DEBUG] [kernel] .rodata [0x80202000, 0x80203000)
-      [ INFO] [kernel] .data [0x80203000, 0x80204000)
-      [ WARN] [kernel] boot_stack top=bottom=0x80214000, lower_bound=0x80204000
-      [ERROR] [kernel] .bss [0x80214000, 0x80215000)
+   安装必要的构建工具：
 
-.. attention::
+   .. code-block:: bash
 
-   如果使用 Qemu8，你需要：
+      rustup target add riscv64imac-unknown-none-elf
+      cargo install cargo-binutils
+      rustup component add llvm-tools-preview
 
-   * 替换 ``bootloader/rustsbi-qemu.bin`` 为最新版 `在这里下载 <https://github.com/rustsbi/rustsbi-qemu/releases>`_ 后更名为 ``bootloader/rustsbi-qemu.bin`` 并替换同名文件即可
-   * 将 ``os/src/sbi.rs`` 中的常量 ``SBI_SHUTDOWN`` 的值替换为 ``const SBI_SHUTDOWN: usize = 0x53525354;``，``SBI_SET_TIMER`` 的值替换为 ``const SBI_SET_TIMER: usize = 0x54494D45;``
-   
-.. attention::
+   编译并生成 Jump 模式的固件（注意：必须添加 --jump 参数）：
 
-   也可以使用 Qemu6，但要小心潜在的不兼容问题！
+   由于 rCore 的 Makefile 并没有传递动态的下一级跳转地址，必须使用 Jump 模式强制跳转到 0x80200000。
+
+   .. code-block:: bash
+
+      cargo run -p xtask -- prototyper --jump
+
+   替换固件：
+
+   编译成功后，将生成的 target/riscv64gc-unknown-none-elf/release/rustsbi-prototyper-jump.bin 复制或链接到本教程项目的 bootloader/rustsbi-qemu.bin。
+
+   方案二：使用 OpenSBI 替换（快速方案）
+
+   如果你不想编译固件，可以使用 C 语言编写的 OpenSBI 进行替换。
+
+   将 `opensbi releases <https://github.com/riscv-software-src/opensbi/releases>`_ 里面的 ``opensbi-{version}-rv-bin/share/opensbi/lp64/generic/firmware/fw_jump.bin`` 改名为 ``bootloader/rustsbi-qemu.bin`` 并替换同名文件即可。
 
 .. code-block:: bash
 
@@ -288,34 +239,124 @@ Qemu 模拟器安装
    cd os
    LOG=DEBUG make run
 
-如果你的环境配置正确，你应当会看到如下输出：
+如果你的环境配置正确，且使用的是 方案一（RustSBI Prototyper），你应当会看到如下输出：
 
 .. code-block::
 
-   [rustsbi] RustSBI version 0.3.0-alpha.4, adapting to RISC-V SBI v1.0.0
-   .______       __    __      _______.___________.  _______..______   __
-   |   _  \     |  |  |  |    /       |           | /       ||   _  \ |  |
-   |  |_)  |    |  |  |  |   |   (----`---|  |----`|   (----`|  |_)  ||  |
-   |      /     |  |  |  |    \   \       |  |      \   \    |   _  < |  |
-   |  |\  \----.|  `--'  |.----)   |      |  |  .----)   |   |  |_)  ||  |
-   | _| `._____| \______/ |_______/       |__|  |_______/    |______/ |__|
-   [rustsbi] Implementation     : RustSBI-QEMU Version 0.2.0-alpha.2
-   [rustsbi] Platform Name      : riscv-virtio,qemu
-   [rustsbi] Platform SMP       : 1
-   [rustsbi] Platform Memory    : 0x80000000..0x88000000
-   [rustsbi] Boot HART          : 0
-   [rustsbi] Device Tree Region : 0x87e00000..0x87e00f85
-   [rustsbi] Firmware Address   : 0x80000000
-   [rustsbi] Supervisor Address : 0x80200000
-   [rustsbi] pmp01: 0x00000000..0x80000000 (-wr)
-   [rustsbi] pmp02: 0x80000000..0x80200000 (---)
-   [rustsbi] pmp03: 0x80200000..0x88000000 (xwr)
-   [rustsbi] pmp04: 0x88000000..0x00000000 (-wr)
+   [RustSBI] INFO  - Hello RustSBI!
+   [RustSBI] INFO  - RustSBI version 0.4.0
+   [RustSBI] INFO  - .______       __    __      _______.___________.  _______..______   __
+   [RustSBI] INFO  - |   _  \     |  |  |  |    /       |           | /       ||   _  \ |  |
+   [RustSBI] INFO  - |  |_)  |    |  |  |  |   |   (----`---|  |----`|   (----`|  |_)  ||  |
+   [RustSBI] INFO  - |      /     |  |  |  |    \   \       |  |      \   \    |   _  < |  |
+   [RustSBI] INFO  - |  |\  \----.|  `--'  |.----)   |      |  |  .----)   |   |  |_)  ||  |
+   [RustSBI] INFO  - | _| `._____| \______/ |_______/       |__|  |_______/    |______/ |__|
+   [RustSBI] INFO  - Initializing RustSBI machine-mode environment.
+   [RustSBI] INFO  - Platform Name                 : riscv-virtio,qemu
+   [RustSBI] INFO  - Platform HART Count           : 1
+   [RustSBI] INFO  - Enabled HARTs                 : [0]
+   [RustSBI] INFO  - Platform IPI Extension        : SiFiveClint (Base Address: 0x2000000)
+   [RustSBI] INFO  - Platform Console Extension    : Uart16550U8 (Base Address: 0x10000000)
+   [RustSBI] INFO  - Platform Reset Extension      : Available (Base Address: 0x100000)
+   [RustSBI] INFO  - Platform HSM Extension        : Available
+   [RustSBI] INFO  - Platform RFence Extension     : Available
+   [RustSBI] INFO  - Platform SUSP Extension       : Available
+   [RustSBI] INFO  - Platform PMU Extension        : Available
+   [RustSBI] INFO  - Memory range                  : 0x80000000 - 0x88000000
+   [RustSBI] INFO  - Platform Status               : Platform initialization complete and ready.
+   [RustSBI] INFO  - PMP Configuration
+   [RustSBI] INFO  - PMP   Range      Permission      Address                       
+   [RustSBI] INFO  - 0     OFF        NONE            0x0000000000000000
+   [RustSBI] INFO  - 1     TOR        RWX             0x0000000080000000
+   [RustSBI] INFO  - 2     TOR        RWX             0x0000000080000000
+   [RustSBI] INFO  - 3     TOR        R               0x0000000080025000
+   [RustSBI] INFO  - 4     TOR        NONE            0x0000000080032000
+   [RustSBI] INFO  - 5     TOR        RW              0x000000008006c000
+   [RustSBI] INFO  - 6     TOR        RWX             0x0000000088000000
+   [RustSBI] INFO  - 7     TOR        RWX             0xfffffffffffffffc
+   [RustSBI] INFO  - Boot HART ID                  : 0
+   [RustSBI] INFO  - Boot HART Privileged Version: : Version1_12
+   [RustSBI] INFO  - Boot HART MHPM Mask:          : 0x07ffff
+   [RustSBI] INFO  - The patched dtb is located at 0x80068000 with length 0x15d0.
+   [RustSBI] INFO  - Redirecting hart 0 to 0x00000080200000 in Supervisor mode.
    [kernel] Hello, world!
-   [DEBUG] [kernel] .rodata [0x80203000, 0x80205000)
-   [ INFO] [kernel] .data [0x80205000, 0x80206000)
-   [ WARN] [kernel] boot_stack top=bottom=0x80216000, lower_bound=0x80206000
-   [ERROR] [kernel] .bss [0x80216000, 0x80217000)
+   [DEBUG] [kernel] .rodata [0x80202000, 0x80203000)
+   [ INFO] [kernel] .data [0x80203000, 0x80204000)
+   [ WARN] [kernel] boot_stack top=bottom=0x80214000, lower_bound=0x80204000
+   [ERROR] [kernel] .bss [0x80214000, 0x80215000)
+
+方案二（OpenSBI）：
+
+.. code-block:: 
+
+   OpenSBI v1.8.1
+      ____                    _____ ____ _____
+   / __ \                  / ____|  _ \_   _|
+   | |  | |_ __   ___ _ __ | (___ | |_) || |
+   | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+   | |__| | |_) |  __/ | | |____) | |_) || |_
+   \____/| .__/ \___|_| |_|_____/|____/_____|
+         | |
+         |_|
+
+   Platform Name               : riscv-virtio,qemu
+   Platform Features           : medeleg
+   Platform HART Count         : 1
+   Platform HART Protection    : pmp
+   Platform IPI Device         : aclint-mswi
+   Platform Timer Device       : aclint-mtimer @ 10000000Hz
+   Platform Console Device     : uart8250
+   Platform HSM Device         : ---
+   Platform PMU Device         : ---
+   Platform Reboot Device      : syscon-reboot
+   Platform Shutdown Device    : syscon-poweroff
+   Platform Suspend Device     : ---
+   Platform CPPC Device        : ---
+   Firmware Base               : 0x80000000
+   Firmware Size               : 321 KB
+   Firmware RW Offset          : 0x40000
+   Firmware RW Size            : 65 KB
+   Firmware Heap Offset        : 0x47000
+   Firmware Heap Size          : 37 KB (total), 0 KB (reserved), 12 KB (used), 23 KB (free)
+   Firmware Scratch Size       : 4096 B (total), 1464 B (used), 2632 B (free)
+   Runtime SBI Version         : 3.0
+   Standard SBI Extensions     : time,rfnc,ipi,base,hsm,srst,pmu,dbcn,fwft,legacy,dbtr,sse
+   Experimental SBI Extensions : none
+
+   Domain0 Name                : root
+   Domain0 Boot HART           : 0
+   Domain0 HARTs               : 0*
+   Domain0 Region00            : 0x0000000080040000-0x000000008005ffff M: (F,R,W) S/U: ()
+   Domain0 Region01            : 0x0000000080000000-0x000000008003ffff M: (F,R,X) S/U: ()
+   Domain0 Region02            : 0x0000000000100000-0x0000000000100fff M: (I,R,W) S/U: (R,W)
+   Domain0 Region03            : 0x0000000010000000-0x0000000010000fff M: (I,R,W) S/U: (R,W)
+   Domain0 Region04            : 0x0000000002000000-0x000000000200ffff M: (I,R,W) S/U: ()
+   Domain0 Region05            : 0x000000000c400000-0x000000000c5fffff M: (I,R,W) S/U: (R,W)
+   Domain0 Region06            : 0x000000000c000000-0x000000000c3fffff M: (I,R,W) S/U: (R,W)
+   Domain0 Region07            : 0x0000000000000000-0xffffffffffffffff M: () S/U: (R,W,X)
+   Domain0 Next Address        : 0x0000000080200000
+   Domain0 Next Arg1           : 0x0000000082200000
+   Domain0 Next Mode           : S-mode
+   Domain0 SysReset            : yes
+   Domain0 SysSuspend          : yes
+
+   Boot HART ID                : 0
+   Boot HART Domain            : root
+   Boot HART Priv Version      : v1.12
+   Boot HART Base ISA          : rv64imafdch
+   Boot HART ISA Extensions    : sstc,zicntr,zihpm,zicboz,zicbom,sdtrig,svadu
+   Boot HART PMP Count         : 16
+   Boot HART PMP Granularity   : 2 bits
+   Boot HART PMP Address Bits  : 54
+   Boot HART MHPM Info         : 16 (0x0007fff8)
+   Boot HART Debug Triggers    : 2 triggers
+   Boot HART MIDELEG           : 0x0000000000001666
+   Boot HART MEDELEG           : 0x0000000000f4b509
+   [kernel] Hello, world!
+   [DEBUG] [kernel] .rodata [0x80202000, 0x80203000)
+   [ INFO] [kernel] .data [0x80203000, 0x80204000)
+   [ WARN] [kernel] boot_stack top=bottom=0x80214000, lower_bound=0x80204000
+   [ERROR] [kernel] .bss [0x80214000, 0x80215000)
 
 通常 rCore 会自动关闭 Qemu 。如果在某些情况下需要强制结束，可以先按下 ``Ctrl+A`` ，再按下 ``X`` 来退出 Qemu。
 
